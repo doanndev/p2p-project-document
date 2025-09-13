@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-https://44ef1db0ff39.ngrok-free.app/api/v1
+https://36e0a8b6e38d.ngrok-free.app/api/v1
 ```
 
 ## Response Format
