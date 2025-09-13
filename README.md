@@ -265,19 +265,15 @@ Cookie: accessToken=xxx; refreshToken=xxx
 }
 ```
 
-### 5.2. Đăng nhập Google
+### 5.3. Google Callback
 
-### POST `/auth/google/login`
+### GET `/auth/google/callback`
 
-**Mô tả:** Đăng nhập bằng Google authorization code
+**Mô tả:** Callback URL từ Google OAuth
 
-**Request Body:**
-```json
-{
-  "code": "4/0AX4XfWh...",
-  "ref_code": "REF123"
-}
-```
+**Query Parameters:**
+- `code`: Authorization code từ Google
+- `state`: State parameter
 
 **Response:**
 ```json
@@ -307,18 +303,6 @@ Cookie: accessToken=xxx; refreshToken=xxx
   "httpStatus": 200
 }
 ```
-
-### 5.3. Google Callback
-
-### GET `/auth/google/callback`
-
-**Mô tả:** Callback URL từ Google OAuth
-
-**Query Parameters:**
-- `code`: Authorization code từ Google
-- `state`: State parameter
-
-**Response:** Tương tự như POST `/auth/google/login`
 
 ---
 
