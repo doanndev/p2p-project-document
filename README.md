@@ -17,8 +17,7 @@ Tất cả API đều sử dụng format response thống nhất:
   "data": { ... },
   "httpStatus": 200,
   "timestamp": "2024-01-01T00:00:00.000Z",
-  "path": "/auth/login",
-  "requestId": "uuid"
+  "path": "/auth/login"
 }
 ```
 
@@ -33,8 +32,7 @@ Tất cả API đều sử dụng format response thống nhất:
     "validationErrors": [ ... ]
   },
   "timestamp": "2024-01-01T00:00:00.000Z",
-  "path": "/auth/login",
-  "requestId": "uuid"
+  "path": "/auth/login"
 }
 ```
 
