@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-http://localhost:3000/
+https://44ef1db0ff39.ngrok-free.app/api/v1
 ```
 
 ## Response Format
