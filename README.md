@@ -134,7 +134,7 @@ Tất cả API đều sử dụng format response thống nhất:
 
 ### POST `/auth/resend-code`
 
-**Mô tả:** Xác thực mã code được gửi qua email
+**Mô tả:** Gửi lại mã code qua email 
 
 **Request Body:**
 ```json
