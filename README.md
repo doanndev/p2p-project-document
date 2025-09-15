@@ -22,8 +22,7 @@ POST /auth/login/google
 | Field | Type | Required | Mô tả |
 |-------|------|----------|-------|
 | `code` | string | Yes | Mã authorization từ Google OAuth |
-| `path` | string | No | Đường dẫn redirect URI |
-| `ref_code` | string | No | Mã giới thiệu |
+
 
 ### Response Success (200)
 ```json
