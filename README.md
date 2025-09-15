@@ -38,204 +38,8 @@ Tất cả API đều sử dụng format response thống nhất:
 
 ---
 
-## 1. Đăng ký tài khoản
 
-### POST `/auth/register`
-
-**Mô tả:** Đăng ký tài khoản mới với email và password
-
-**Request Body:**
-```json
-{
-  "uname": "john_doe",
-  "uemail": "john@example.com",
-  "uphone": "+84123456789",
-  "upassword": "password123",
-  "ufullname": "John Doe",
-  "ubirthday": "1990-01-01",
-  "usex": "other",
-  "uref": "REF123"
-}
-```
-
-**Validation Rules:**
-- `uname`: 3-16 ký tự
-- `uemail`: Email hợp lệ
-- `uphone`: 10-15 số, format quốc tế
-- `upassword`: 6-32 ký tự
-- `ufullname`: 2-32 ký tự
-- `ubirthday`: Date string (optional)
-- `usex`: enum (male, female, other)
-- `uref`: Mã giới thiệu (optional)
-
-**Response:**
-```json
-{
-  "status": "success",
-  "successType": "CREATED",
-  "message": "A verification code has been sent to your email.",
-  "data": "john@example.com",
-  "httpStatus": 201
-}
-```
-
-**Error Cases:**
-- `400`: Validation error
-- `409`: Email/username đã tồn tại
-- `500`: Lỗi server
-
----
-
-## 2. Xác thực email
-
-### POST `/auth/verify`
-
-**Mô tả:** Xác thực mã code được gửi qua email
-
-**Request Body:**
-```json
-{
-  "verificationCode": "123456",
-  "codeType": "ACTIVE_EMAIL",
-  "email": "john@example.com"
-}
-```
-
-**Validation Rules:**
-- `verificationCode`: 6 số
-- `codeType`: enum (ACTIVE_EMAIL, TELE_LOGIN, RESET_PASSWORD, CHANGE_BANK, WITHDRAW)
-- `email`: Email hợp lệ (hoặc username, phone, telegram)
-
-**Response:**
-```json
-{
-  "status": "success",
-  "successType": "VERIFIED",
-  "message": "Code verified successfully",
-  "data": {
-    "success": true,
-    "message": "email-verification code verified successfully",
-    "tokens": {
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    }
-  },
-  "httpStatus": 200
-}
-```
-
-**Error Cases:**
-- `400`: Mã code không hợp lệ
-- `404`: User không tồn tại
-- `410`: Mã code đã hết hạn
-
----
-
-
-### POST `/auth/resend-code`
-
-**Mô tả:** Gửi lại mã code qua email 
-
-**Request Body:**
-```json
-{
-  "codeType": "ACTIVE_EMAIL",
-  "email": "john@example.com"
-}
-```
-
-
-## 3. Đăng nhập
-
-### POST `/auth/login`
-
-**Mô tả:** Đăng nhập bằng email/username và password
-
-**Request Body:**
-```json
-{
-  "email": "john@example.com",
-  "password": "password123"
-}
-```
-
-**Hoặc:**
-```json
-{
-  "username": "john_doe",
-  "password": "password123"
-}
-```
-
-**Validation Rules:**
-- `email` hoặc `username`: Bắt buộc một trong hai
-- `password`: 6-32 ký tự
-
-**Response:**
-```json
-{
-  "status": "success",
-  "successType": "LOGIN_SUCCESS",
-  "message": "Login successful",
-  "data": {
-    "user": {
-      "uid": 1,
-      "uname": "john_doe",
-      "uemail": "john@example.com",
-      "ufullname": "John Doe",
-      "u_active_email": true,
-      "u_active_ggauth": false
-    },
-    "tokens": {
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    }
-  },
-  "httpStatus": 200
-}
-```
-
-**Error Cases:**
-- `400`: Thiếu thông tin đăng nhập
-- `401`: Thông tin đăng nhập không đúng
-- `403`: Tài khoản chưa xác thực email
-- `423`: Tài khoản bị khóa
-
----
-
-## 4. Đăng xuất
-
-### GET `/auth/logout`
-
-**Mô tả:** Đăng xuất và vô hiệu hóa token
-
-**Headers:**
-```
-Cookie: accessToken=xxx; refreshToken=xxx
-```
-
-**Response:**
-```json
-{
-  "status": "success",
-  "successType": "LOGOUT_SUCCESS",
-  "message": "Logout successful",
-  "data": {
-    "success": true,
-    "message": "Logout successful",
-    "tokens": {
-      "accessToken": "expired_token",
-      "refreshToken": "expired_token"
-    }
-  },
-  "httpStatus": 200
-}
-```
-
-**Error Cases:**
-- `401`: Không có token trong cookie
-
----
+## 1. Đăng nhập
 
 ## 5. Google OAuth
 
@@ -340,6 +144,40 @@ Cookie: accessToken=xxx; refreshToken=xxx
 - `400`: Thiếu telegram_id hoặc code
 - `404`: User không tồn tại
 - `410`: Mã code đã hết hạn
+
+---
+
+## 4. Đăng xuất
+
+### GET `/auth/logout`
+
+**Mô tả:** Đăng xuất và vô hiệu hóa token
+
+**Headers:**
+```
+Cookie: accessToken=xxx; refreshToken=xxx
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "successType": "LOGOUT_SUCCESS",
+  "message": "Logout successful",
+  "data": {
+    "success": true,
+    "message": "Logout successful",
+    "tokens": {
+      "accessToken": "expired_token",
+      "refreshToken": "expired_token"
+    }
+  },
+  "httpStatus": 200
+}
+```
+
+**Error Cases:**
+- `401`: Không có token trong cookie
 
 ---
 
