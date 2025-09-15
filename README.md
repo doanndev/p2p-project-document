@@ -143,11 +143,11 @@ Telegram Bot Login
 
 **Mô tả:** Đăng nhập thông qua Telegram Bot. User cần gửi `/start` cho bot để nhận login URL.
 
-### GET `/auth/telegram/verify`
+### POST `/auth/telegram/verify`
 
 **Mô tả:** Xác thực mã code từ Telegram
 
-**Query Parameters:**
+**Body Parameters:**
 - `telegram_id`: ID Telegram của user
 - `code`: Mã xác thực 6 số
 
