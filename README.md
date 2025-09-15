@@ -45,16 +45,10 @@ Tất cả API đều sử dụng format response thống nhất:
 
 ### 5.1. Lấy Google OAuth URL
 
-### POST `/auth/google/auth-url`
+### GET `/auth/google/auth-url`
 
 **Mô tả:** Tạo URL để đăng nhập Google
 
-**Request Body:**
-```json
-{
-  "state": "login-email"
-}
-```
 
 **Response:**
 ```json
