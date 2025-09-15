@@ -16,7 +16,6 @@ POST /auth/login/google
 ```json
 {
   "code": "4%2F0AVGzR1CoEBpQO6uFh5jtD-fOwovJk_li9f6F7jT6I6pA79mnyq5Rf7aXwnFWAhDmbuexKw",
-  "path": "login-google",
   "ref_code": "optional_referral_code"
 }
 ```
