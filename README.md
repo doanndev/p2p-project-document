@@ -154,21 +154,9 @@ Telegram Bot Login
 **Response:**
 ```json
 {
-    "status": "success",
-    "successType": "authenticated",
-    "message": "Telegram login successful",
-    "data": {
-        "user": {
-            "uid": 124,
-            "uname": "telegram_user",
-            "uemail": null,
-            "ufulllname": "Telegram User",
-            "uavatar": null,
-            "ustatus": "active"
-        },
-        "isNewUser": true
-    },
-    "timestamp": "2025-09-15T03:23:58.885Z"
+    "success": true,
+    "message": "Telegram verification successful",
+    "timestamp": "2025-09-15T08:31:00.355Z"
 }
 ```
 
