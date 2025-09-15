@@ -59,13 +59,14 @@ Tất cả API đều sử dụng format response thống nhất:
 **Response:**
 ```json
 {
-  "status": "success",
-  "successType": "RETRIEVED",
-  "message": "Google OAuth URL generated successfully",
-  "data": {
-    "authUrl": "https://accounts.google.com/oauth/authorize?..."
-  },
-  "httpStatus": 200
+    "status": "success",
+    "successType": "retrieved",
+    "message": "Google OAuth URL generated successfully",
+    "data": {
+        "authUrl": "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&state=login-email&prompt=consent&response_type=code&client_id=214941487373-5u9pre3lr06nndoal6tfiphp3tb08pr6.apps.googleusercontent.com&redirect_uri=https%3A%2F%2F36e0a8b6e38d.ngrok-free.app%2Fapi%2Fv1%2Fauth%2Fgoogle%2Fcallback"
+    },
+    "httpStatus": 200,
+    "timestamp": "2025-09-15T03:23:58.885Z"
 }
 ```
 
@@ -83,28 +84,25 @@ Tất cả API đều sử dụng format response thống nhất:
 ```json
 {
   "status": "success",
-  "successType": "LOGIN_SUCCESS",
+  "successType": "login_success",
   "message": "Login successful",
   "data": {
     "status": true,
     "message": "Login successful",
     "user": {
-      "uid": 1,
-      "email": "john@gmail.com",
-      "fullName": "John Doe",
+      "uid": 71,
+      "email": "doann.dev@gmail.com",
+      "fullName": "Cornelius Waters",
       "isActive": true
     },
     "wallet": {
-      "umw_id": 1,
-      "address": "0x1234..."
+      "umw_id": 10,
+      "address": "CZpGjxh8tkjuCCMiUeHchawmufBUivK33FUeZ5Wrsn7u"
     },
-    "isNewUser": false,
-    "tokens": {
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    }
+    "isNewUser": false
   },
-  "httpStatus": 200
+  "httpStatus": 200,
+  "timestamp": "2025-09-15T03:19:41.333Z"
 }
 ```
 
