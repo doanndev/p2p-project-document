@@ -5,213 +5,247 @@
 https://dp7vlq3z-8000.asse.devtunnels.ms/api/v1
 ```
 
-## Response Format
-Tất cả API đều sử dụng format response thống nhất:
+## 1. Đăng nhập Google
 
-### Success Response
+### Endpoint
+```
+POST /auth/login/google
+```
+
+### Request Body
 ```json
 {
-  "status": "success",
-  "successType": "LOGIN_SUCCESS",
-  "message": "Login successful",
-  "data": { ... },
-  "httpStatus": 200,
-  "timestamp": "2024-01-01T00:00:00.000Z",
-  "path": "/auth/login"
+  "code": "4%2F0AVGzR1CoEBpQO6uFh5jtD-fOwovJk_li9f6F7jT6I6pA79mnyq5Rf7aXwnFWAhDmbuexKw",
+  "path": "login-google",
+  "ref_code": "optional_referral_code"
 }
 ```
 
-### Error Response
+| Field | Type | Required | Mô tả |
+|-------|------|----------|-------|
+| `code` | string | Yes | Mã authorization từ Google OAuth |
+| `path` | string | No | Đường dẫn redirect URI |
+| `ref_code` | string | No | Mã giới thiệu |
+
+### Response Success (200)
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "user": {
+      "uname": "john_doe",
+      "uemail": "john@example.com",
+      "ufulllname": "John Doe",
+      "uavatar": "https://lh3.googleusercontent.com/...",
+      "ubirthday": "1990-01-01",
+      "usex": "male"
+    },
+    "wallet": {
+      "umw_id": 1,
+      "address": "0x1234abcd...",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    },
+    "isNewUser": true
+  },
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+### Response Error (400/500)
 ```json
 {
   "success": false,
-  "message": "Error message",
+  "message": "Google login failed",
+  "error": {
+    "type": "BAD_REQUEST",
+    "details": {
+      "originalError": "Invalid state parameter"
+    }
+  }
+}
+```
+
+**Cookies được set:** `accessToken`, `refreshToken`
+
+---
+
+## 2. Xác thực Telegram
+
+### Endpoint
+```
+POST /auth/telegram/verify
+```
+
+### Request Body
+```json
+{
+  "telegram_id": "123456789",
+  "code": "123456"
+}
+```
+
+| Field | Type | Required | Mô tả |
+|-------|------|----------|-------|
+| `telegram_id` | string | Yes | ID người dùng Telegram |
+| `code` | string | Yes | Mã xác thực 6 số |
+
+### Response Success (200)
+```json
+{
+  "success": true,
+  "message": "Telegram verification successful",
+  "data": {
+    "user": {
+      "uname": "john_doe",
+      "uemail": "john@example.com",
+      "ufulllname": "John Doe",
+      "uavatar": "https://t.me/i/userpic/...",
+      "ubirthday": "1990-01-01",
+      "usex": "male"
+    },
+    "wallet": {
+      "umw_id": 1,
+      "address": "0x1234abcd...",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    }
+  },
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+### Response Error (400)
+```json
+{
+  "success": false,
+  "message": "Telegram ID and verification code are required",
+  "error": {
+    "type": "BAD_REQUEST",
+    "details": {
+      "provided": {
+        "telegramId": "123456789",
+        "code": "123456"
+      }
+    }
+  }
+}
+```
+
+**Cookies được set:** `accessToken`, `refreshToken`
+
+---
+
+## 3. Lấy thông tin profile
+
+### Endpoint
+```
+GET /auth/me
+```
+
+### Request Headers
+```
+Cookie: accessToken=your_access_token; refreshToken=your_refresh_token
+```
+
+### Response Success (200)
+```json
+{
+  "success": true,
+  "message": "Profile retrieved successfully",
+  "data": {
+    "user": {
+      "uname": "john_doe",
+      "uemail": "john@example.com",
+      "ufulllname": "John Doe",
+      "uavatar": "https://example.com/avatar.jpg",
+      "ubirthday": "1990-01-01",
+      "usex": "male"
+    },
+    "mainWallet": {
+      "umw_id": 1,
+      "address": "0x1234abcd...",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    },
+    "importWallets": [
+      {
+        "uic_id": 1,
+        "uic_name": "My Import Wallet",
+        "address": "0x5678efgh...",
+        "created_at": "2024-01-01T00:00:00.000Z"
+      }
+    ]
+  },
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+### Response Error (401)
+```json
+{
+  "success": false,
+  "message": "Both access token and refresh token are invalid",
   "error": {
     "type": "UNAUTHORIZED",
-    "details": { ... },
-    "validationErrors": [ ... ]
-  },
-  "timestamp": "2024-01-01T00:00:00.000Z",
-  "path": "/auth/login"
+    "details": {
+      "reason": "Session expired, please login again"
+    }
+  }
 }
 ```
 
----
-
-## 1. Đăng nhập
-
-## 2. Google OAuth
-
-### 2.1. Lấy Google OAuth URL
-
-### GET `/auth/google/auth-url`
-
-**Mô tả:** Tạo URL để đăng nhập Google OAuth
-
-**Request:**
-- Method: `GET`
-- Headers: Không cần
-
-**Response:**
-```json
-{
-    "status": "success",
-    "successType": "retrieved",
-    "message": "Google OAuth URL generated successfully",
-    "data": {
-        "authUrl": "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&state=login-google&prompt=consent&response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI"
-    },
-    "timestamp": "2025-09-15T03:23:58.885Z"
-}
-```
-
-**Error Response:**
-```json
-{
-    "status": "error",
-    "successType": "failed",
-    "message": "Failed to generate Google OAuth URL",
-    "error": {
-        "type": "INTERNAL_SERVER_ERROR",
-        "details": {
-            "originalError": "Error message"
-        }
-    },
-    "timestamp": "2025-09-15T03:23:58.885Z"
-}
-```
-
-### 2.2. Google OAuth Callback
-
-### GET `/auth/google/callback`
-
-**Mô tả:** Xử lý callback từ Google OAuth sau khi user đăng nhập
-
-**Request:**
-- Method: `GET`
-- Query Parameters:
-  - `code` (string, required): Authorization code từ Google
-  - `state` (string, required): State parameter để bảo mật
-
-**Response:**
-```json
-{
-    "status": "success",
-    "successType": "authenticated",
-    "message": "Google login successful",
-    "data": {
-        "user": {
-            "uid": 123,
-            "uname": "john_doe",
-            "uemail": "john.doe@gmail.com",
-            "ufulllname": "John Doe",
-            "uavatar": "https://lh3.googleusercontent.com/...",
-            "ustatus": "active"
-        },
-        "isNewUser": false
-    },
-    "httpStatus": 200,
-    "timestamp": "2025-09-15T03:23:58.885Z"
-}
-```
-
-**Error Response:**
-```json
-{
-    "status": "error",
-    "successType": "failed",
-    "message": "Authorization code has expired or already been used",
-    "error": {
-        "type": "UNAUTHORIZED",
-        "details": {
-            "originalError": "invalid_grant",
-            "suggestion": "Please try logging in again"
-        }
-    },
-    "httpStatus": 401,
-    "timestamp": "2025-09-15T03:23:58.885Z"
-}
-```
-
----
-
-## 6. Telegram Authentication
-
-### 6.1. Xác thực Telegram
-
-Telegram Bot Login
-
-**Mô tả:** Đăng nhập thông qua Telegram Bot. User cần gửi `/start` cho bot để nhận login URL.
-
-### POST `/auth/telegram/verify`
-
-**Mô tả:** Xác thực mã code từ Telegram
-
-**Body Parameters:**
-- `telegram_id`: ID Telegram của user
-- `code`: Mã xác thực 6 số
-
-**Response:**
-```json
-{
-    "success": true,
-    "message": "Telegram verification successful",
-    "timestamp": "2025-09-15T08:31:00.355Z"
-}
-```
-
-**Error Cases:**
-- `400`: Thiếu telegram_id hoặc code
-- `404`: User không tồn tại
-- `410`: Mã code đã hết hạn
+**Ghi chú:** API tự động refresh token nếu access token hết hạn
 
 ---
 
 ## 4. Đăng xuất
 
-### GET `/auth/logout`
-
-**Mô tả:** Đăng xuất và vô hiệu hóa token
-
-**Headers:**
+### Endpoint
 ```
-Cookie: accessToken=xxx; refreshToken=xxx
+GET /auth/logout
 ```
 
-**Response:**
+### Request Headers
+```
+Cookie: accessToken=your_access_token; refreshToken=your_refresh_token
+```
+
+### Response Success (200)
 ```json
 {
-  "status": "success",
-  "successType": "LOGOUT_SUCCESS",
+  "success": true,
   "message": "Logout successful",
   "data": {
-    "success": true,
-    "message": "Logout successful",
-    "tokens": {
-      "accessToken": "expired_token",
-      "refreshToken": "expired_token"
-    }
+    "message": "User logged out successfully"
   },
-  "httpStatus": 200
+  "timestamp": "2024-01-01T00:00:00.000Z"
 }
 ```
 
-**Error Cases:**
-- `401`: Không có token trong cookie
+### Response Error (401)
+```json
+{
+  "success": false,
+  "message": "No access token found in cookies",
+  "error": {
+    "type": "UNAUTHORIZED",
+    "details": {
+      "reason": "User not logged in"
+    }
+  }
+}
+```
+
+**Cookies bị xóa:** `accessToken`, `refreshToken`
 
 ---
 
-## 7. Các loại Code và thời gian hết hạn
+## Các loại lỗi thường gặp
 
-| Code Type | Mô tả | Thời gian hết hạn | Kênh gửi |
-|-----------|-------|-------------------|----------|
-| `ACTIVE_EMAIL` | Xác thực email | 15 phút | Email |
-| `TELE_LOGIN` | Đăng nhập Telegram | 10 phút | Telegram |
-| `RESET_PASSWORD` | Đặt lại mật khẩu | 30 phút | Email |
-| `CHANGE_BANK` | Thay đổi ngân hàng | 5 phút | SMS |
-| `WITHDRAW` | Rút tiền | 5 phút | SMS |
-
----
+- `UNAUTHORIZED`: Token không hợp lệ hoặc thiếu
+- `BAD_REQUEST`: Tham số request không đúng
+- `USER_NOT_FOUND`: Không tìm thấy user
+- `VERIFICATION_FAILED`: Xác thực mã thất bại
+- `INTERNAL_SERVER_ERROR`: Lỗi server
 
 ## 8. JWT Token
 
