@@ -38,17 +38,19 @@ Tất cả API đều sử dụng format response thống nhất:
 
 ---
 
-
 ## 1. Đăng nhập
 
-## 5. Google OAuth
+## 2. Google OAuth
 
-### 5.1. Lấy Google OAuth URL
+### 2.1. Lấy Google OAuth URL
 
 ### GET `/auth/google/auth-url`
 
-**Mô tả:** Tạo URL để đăng nhập Google
+**Mô tả:** Tạo URL để đăng nhập Google OAuth
 
+**Request:**
+- Method: `GET`
+- Headers: Không cần
 
 **Response:**
 ```json
@@ -57,46 +59,77 @@ Tất cả API đều sử dụng format response thống nhất:
     "successType": "retrieved",
     "message": "Google OAuth URL generated successfully",
     "data": {
-        "authUrl": "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&state=login-email&prompt=consent&response_type=code&client_id=214941487373-5u9pre3lr06nndoal6tfiphp3tb08pr6.apps.googleusercontent.com&redirect_uri=https%3A%2F%2F36e0a8b6e38d.ngrok-free.app%2Fapi%2Fv1%2Fauth%2Fgoogle%2Fcallback"
+        "authUrl": "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&state=login-google&prompt=consent&response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI"
+    },
+    "timestamp": "2025-09-15T03:23:58.885Z"
+}
+```
+
+**Error Response:**
+```json
+{
+    "status": "error",
+    "successType": "failed",
+    "message": "Failed to generate Google OAuth URL",
+    "error": {
+        "type": "INTERNAL_SERVER_ERROR",
+        "details": {
+            "originalError": "Error message"
+        }
+    },
+    "timestamp": "2025-09-15T03:23:58.885Z"
+}
+```
+
+### 2.2. Google OAuth Callback
+
+### GET `/auth/google/callback`
+
+**Mô tả:** Xử lý callback từ Google OAuth sau khi user đăng nhập
+
+**Request:**
+- Method: `GET`
+- Query Parameters:
+  - `code` (string, required): Authorization code từ Google
+  - `state` (string, required): State parameter để bảo mật
+
+**Response:**
+```json
+{
+    "status": "success",
+    "successType": "authenticated",
+    "message": "Google login successful",
+    "data": {
+        "user": {
+            "uid": 123,
+            "uname": "john_doe",
+            "uemail": "john.doe@gmail.com",
+            "ufulllname": "John Doe",
+            "uavatar": "https://lh3.googleusercontent.com/...",
+            "ustatus": "active"
+        },
+        "isNewUser": false
     },
     "httpStatus": 200,
     "timestamp": "2025-09-15T03:23:58.885Z"
 }
 ```
 
-### 5.3. Google Callback
-
-### GET `/auth/google/callback`
-
-**Mô tả:** Callback URL từ Google OAuth
-
-**Query Parameters:**
-- `code`: Authorization code từ Google
-- `state`: State parameter
-
-**Response:**
+**Error Response:**
 ```json
 {
-  "status": "success",
-  "successType": "login_success",
-  "message": "Login successful",
-  "data": {
-    "status": true,
-    "message": "Login successful",
-    "user": {
-      "uid": 71,
-      "email": "doann.dev@gmail.com",
-      "fullName": "Cornelius Waters",
-      "isActive": true
+    "status": "error",
+    "successType": "failed",
+    "message": "Authorization code has expired or already been used",
+    "error": {
+        "type": "UNAUTHORIZED",
+        "details": {
+            "originalError": "invalid_grant",
+            "suggestion": "Please try logging in again"
+        }
     },
-    "wallet": {
-      "umw_id": 10,
-      "address": "CZpGjxh8tkjuCCMiUeHchawmufBUivK33FUeZ5Wrsn7u"
-    },
-    "isNewUser": false
-  },
-  "httpStatus": 200,
-  "timestamp": "2025-09-15T03:19:41.333Z"
+    "httpStatus": 401,
+    "timestamp": "2025-09-15T03:23:58.885Z"
 }
 ```
 
@@ -105,6 +138,10 @@ Tất cả API đều sử dụng format response thống nhất:
 ## 6. Telegram Authentication
 
 ### 6.1. Xác thực Telegram
+
+Telegram Bot Login
+
+**Mô tả:** Đăng nhập thông qua Telegram Bot. User cần gửi `/start` cho bot để nhận login URL.
 
 ### GET `/auth/telegram/verify`
 
@@ -117,18 +154,21 @@ Tất cả API đều sử dụng format response thống nhất:
 **Response:**
 ```json
 {
-  "status": "success",
-  "successType": "LOGIN_SUCCESS",
-  "message": "Telegram verification successful",
-  "data": {
-    "uid": 1,
-    "uname": "john_doe",
-    "uemail": "john@example.com",
-    "ufullname": "John Doe",
-    "u_active_email": true,
-    "u_active_ggauth": true
-  },
-  "httpStatus": 200
+    "status": "success",
+    "successType": "authenticated",
+    "message": "Telegram login successful",
+    "data": {
+        "user": {
+            "uid": 124,
+            "uname": "telegram_user",
+            "uemail": null,
+            "ufulllname": "Telegram User",
+            "uavatar": null,
+            "ustatus": "active"
+        },
+        "isNewUser": true
+    },
+    "timestamp": "2025-09-15T03:23:58.885Z"
 }
 ```
 
@@ -189,35 +229,13 @@ Cookie: accessToken=xxx; refreshToken=xxx
 
 ### Access Token
 - **Thời gian hết hạn:** 15 phút
-- **Payload:** `{ sub: userId, username, email, type: 'access' }`
-- **Secret:** `JWT_SECRET`
+
 
 ### Refresh Token
 - **Thời gian hết hạn:** 7 ngày
-- **Payload:** `{ sub: userId, type: 'refresh' }`
-- **Secret:** `JWT_REFRESH_SECRET`
 
 ### Cookie Settings
 - **HttpOnly:** true
 - **Secure:** true (production)
 - **SameSite:** 'strict'
 
----
-
-## 9. Error Types
-
-| Error Type | HTTP Status | Mô tả |
-|------------|-------------|-------|
-| `BAD_REQUEST` | 400 | Dữ liệu đầu vào không hợp lệ |
-| `UNAUTHORIZED` | 401 | Chưa đăng nhập hoặc token không hợp lệ |
-| `FORBIDDEN` | 403 | Không có quyền truy cập |
-| `NOT_FOUND` | 404 | Không tìm thấy tài nguyên |
-| `CONFLICT` | 409 | Xung đột dữ liệu (email đã tồn tại) |
-| `VALIDATION_ERROR` | 422 | Lỗi validation |
-| `ACCOUNT_SUSPENDED` | 423 | Tài khoản bị khóa |
-| `TWO_FACTOR_REQUIRED` | 424 | Cần xác thực 2 bước |
-| `VERIFICATION_FAILED` | 410 | Mã xác thực không hợp lệ |
-| `INVALID_CREDENTIALS` | 401 | Thông tin đăng nhập không đúng |
-| `INTERNAL_SERVER_ERROR` | 500 | Lỗi server |
-
----
