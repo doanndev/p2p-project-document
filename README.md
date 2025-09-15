@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-https://36e0a8b6e38d.ngrok-free.app/api/v1
+https://dp7vlq3z-8000.asse.devtunnels.ms/api/v1
 ```
 
 ## Response Format
